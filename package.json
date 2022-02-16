@@ -1,0 +1,15 @@
+{
+  "name": "iotaengine",
+  "version": "1.0.0",
+  "description": "the logic behind iota",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Cole Cassidy",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.17.2",
+    "mongodb": "^4.3.1"
+  }
+}

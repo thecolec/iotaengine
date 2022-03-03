@@ -1,6 +1,6 @@
 {
   "name": "iotaengine",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "the logic behind iota",
   "main": "index.js",
   "scripts": {
@@ -11,5 +11,13 @@
   "dependencies": {
     "express": "^4.17.2",
     "mongodb": "^4.3.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thecolec/iotaengine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thecolec/iotaengine/issues"
+  },
+  "homepage": "https://github.com/thecolec/iotaengine#readme"
 }

@@ -24,20 +24,42 @@ app.get('/auth', (req, res) => {
 });
 
 // User API
+// /user returns JSON for a requested user
 app.get('/user', (req, res) => {
     res.send("Future User Endpoint");
     console.log("User Request Received");
 });
+
+// /user/list returns JSON of all registered users.
+app.get('/user/list', (req, res) => {
+    res.send("Future User Endpoint");
+    console.log("User Request Received");
+});
+
+// /user/add creates a new user using information from the request
 app.get('/user/add', (req, res) => {
     iota.createuser("add");
     res.send("Added")
-})
+});
+
+// /user/del "deletes" a user by making their account inactive.
+app.get('/user/del', (req, res) => {
+    iota.removeuser(req);
+    res.send("Removed");
+});
 
 // Organization API
+// /org returns JSON for a requested organization
 app.get('/org', (req, res) => {
     res.send("Future Organization Endpoint");
-    console.log("Organization Request Received");
-})
+    co
+    nsole.log("Organization Request Received");
+});
+
+// /org/list returns JSON array of all registered organizations
+app.get('/org/list', (req, res) => {
+    res.send("Future Organization Endpoint");
+});
 
 app.listen(port);
 console.log('API START');

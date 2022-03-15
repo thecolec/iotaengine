@@ -6,11 +6,11 @@
 var express = require('express'),
     app = express(),
     port = process.env.PORT || 3000;
-var MongoClient = require('mongodb').MongoClient;
-var dburl = 'mongodb://localhost/iotattestingdb';
 
 // internal libraries
 var iota = require('./iota.js');
+
+app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send("Hello World");
@@ -25,15 +25,18 @@ app.get('/auth', (req, res) => {
 
 // User API
 // /user returns JSON for a requested user
-app.get('/user', (req, res) => {
-    res.send("Future User Endpoint");
+app.get('/user/:uid', (req, res) => {
+    iota.finduser(req.params.uid, res);
     console.log("User Request Received");
 });
 
 // /user/list returns JSON of all registered users.
-app.get('/user/list', (req, res) => {
-    res.send("Future User Endpoint");
-    console.log("User Request Received");
+app.get('/users', (req, res) => {
+    iota.listusers(req, res);
+});
+
+app.get('/users/org/:oid', (req, res) => {
+    iota.listUsersByOrg(req.params.oid, res);
 });
 
 // /user/add creates a new user using information from the request
@@ -52,14 +55,19 @@ app.get('/user/del', (req, res) => {
 // /org returns JSON for a requested organization
 app.get('/org', (req, res) => {
     res.send("Future Organization Endpoint");
-    co
-    nsole.log("Organization Request Received");
+    console.log("Organization Request Received");
 });
 
+app.get('/org/:oid', (req, res) => {
+    iota.findorg(req.params.oid, res);
+    console.log("Org Req Received")
+})
+
 // /org/list returns JSON array of all registered organizations
-app.get('/org/list', (req, res) => {
-    res.send("Future Organization Endpoint");
+app.get('/orgs', (req, res) => {
+    iota.listorgs(req, res);
 });
+
 
 app.listen(port);
 console.log('API START');

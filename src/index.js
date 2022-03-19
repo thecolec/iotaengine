@@ -13,7 +13,12 @@ var iota = require('./iota.js');
 app.use(express.json());
 
 app.get('/', async (req, res) => {
-    res.send("Hello World");
+    try{
+        res.send("Hello World");
+    } catch(e) {
+        console.log(e)
+    }
+    
 });
 
 // Authentication API
@@ -25,9 +30,13 @@ app.get('/auth', (req, res) => {
 // User API
 // /user returns JSON for a requested user
 app.get('/user/:uid', async (req, res) => {
-    console.log("User Request: "+req.params.uid+" From: "+req.ip);
-    const userInfo = await iota.findUser(req.params.uid);
-    res.json(userInfo);
+    try{
+        console.log("User Request: "+req.params.uid+" From: "+req.ip);
+        const userInfo = await iota.findUser(req.params.uid);
+        res.json(userInfo);
+    } catch(e) {
+        console.log(e);
+    }
 });
 
 // /user/list returns JSON of all registered users.

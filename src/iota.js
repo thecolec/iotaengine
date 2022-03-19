@@ -16,6 +16,7 @@ const client = new MongoClient(uri);
 
 const ERRJSONNull = {Error: true, msg: "Null JSON returned from DB"};
 const ERRRequestInvalid = {Error: true, msg:"Inproper Request"};
+const ERRUnkown = {Error: true, msg:"Unknown Error. Server may still be initializing."};
 
 exports.createuser = (msg) => {
     console.log(msg);
@@ -37,7 +38,7 @@ MongoClient.connect(uri, (err, db) => {
     assert.equal(null, err);
     mongodb = db;
     mdb = db.db("iota_testing");
-    console.log("connected :D");
+    console.log("Connected :D");
 })
 
 
@@ -61,24 +62,53 @@ exports.testConn = async () => {
 // }
 
 const findUser = async (uid) => {
-    const doc = await mongodb.db("iota_testing").collection("users").findOne({"_id": ObjectId(uid)});
-    return doc;
+    try {
+        const doc = await mongodb.db("iota_testing").collection("users").findOne({"_id": ObjectId(uid)});
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
+    }
 }
 
 const listAllUsers = async () => {
-    const doc = await mongodb.db("iota_testing").collection("users").find().toArray();
-    return doc;
+    try {
+        const doc = await mongodb.db("iota_testing").collection("users").find().toArray();
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
+    }
 }
 
 const findOrg = async (uid) => {
-    const doc = await mongodb.db("iota_testing").collection("organizations").findOne({"_id": ObjectId(uid)});
-    return doc;
+    try {
+        const doc = await mongodb.db("iota_testing").collection("organizations").findOne({"_id": ObjectId(uid)});
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
+    }
 }
 
 const listAllOrgs = async () => {
-    const doc = await mongodb.db("iota_testing").collection("organizations").find().toArray();
-    return doc;
+    try {
+        const doc = await mongodb.db("iota_testing").collection("organizations").find().toArray();
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
+    }
 }
+
+// const functName = async () => {
+//     try {
+
+//     } catch(e) {
+//         console.error(e);
+//         return ERRUnkown;
+//     }
+// }
 
 exports.findUser = findUser;
 exports.findOrg = findOrg;

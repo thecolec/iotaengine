@@ -12,9 +12,8 @@ var iota = require('./iota.js');
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     res.send("Hello World");
-    console.log("Request Received");
 });
 
 // Authentication API
@@ -25,14 +24,17 @@ app.get('/auth', (req, res) => {
 
 // User API
 // /user returns JSON for a requested user
-app.get('/user/:uid', (req, res) => {
-    iota.finduser(req.params.uid, res);
-    console.log("User Request Received");
+app.get('/user/:uid', async (req, res) => {
+    console.log("User Request: "+req.params.uid+" From: "+req.ip);
+    const userInfo = await iota.findUser(req.params.uid);
+    res.json(userInfo);
 });
 
 // /user/list returns JSON of all registered users.
-app.get('/users', (req, res) => {
-    iota.listusers(req, res);
+app.get('/users', async (req, res) => {
+    console.log("User List Request:                           From: "+req.ip);
+    const usrList = await iota.listAllUsers();
+    res.json(usrList);
 });
 
 app.get('/users/org/:oid', (req, res) => {
@@ -52,22 +54,20 @@ app.get('/user/del', (req, res) => {
 });
 
 // Organization API
-// /org returns JSON for a requested organization
-app.get('/org', (req, res) => {
-    res.send("Future Organization Endpoint");
-    console.log("Organization Request Received");
-});
-
-app.get('/org/:oid', (req, res) => {
-    iota.findorg(req.params.oid, res);
-    console.log("Org Req Received")
+// /org/<oid> returns the json for a requested organization identified by its OID.
+app.get('/org/:oid', async (req, res) => {
+    console.log("Org Request: "+req.params.uid+" From: "+req.ip);
+    const orgInfo = await iota.findOrg(req.params.uid);
+    res.json(orgInfo);
 })
 
-// /org/list returns JSON array of all registered organizations
-app.get('/orgs', (req, res) => {
-    iota.listorgs(req, res);
+// /orgs
+app.get('/orgs', async (req, res) => {
+    console.log("Org List Request:                           From: "+req.ip);
+    const orgInfo = await iota.listAllOrgs();
+    res.json(orgInfo);
 });
-
 
 app.listen(port);
 console.log('API START');
+console.log("Waiting for DB Connection");

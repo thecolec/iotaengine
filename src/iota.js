@@ -3,13 +3,19 @@
 // Primary application logic.
 
 const { query } = require('express');
+const assert = require('assert');
 const res = require('express/lib/response');
 
-// MongoDB library
-var MongoClient = require('mongodb').MongoClient;
-var dburl = 'mongodb://localhost/iotattestingdb';
+const { MongoClient, ObjectId } = require('mongodb');
+const { Console } = require('console');
 
-var ERRJSONNull = {Error: true, msg: "Null JSON returned from DB"};
+// MongoDB library
+const uri = "mongodb+srv://iotabot:jameshalliday@cluster0.m5mj8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+const client = new MongoClient(uri);
+
+
+const ERRJSONNull = {Error: true, msg: "Null JSON returned from DB"};
+const ERRRequestInvalid = {Error: true, msg:"Inproper Request"};
 
 exports.createuser = (msg) => {
     console.log(msg);
@@ -26,85 +32,55 @@ q.payload   -       contains the query to be sent to the database
 // async friendly
 // not structurally necessary, but makes development significantly easier.
 
-// equivalent to "findOne"
-singleRequest = (q, callback) => {
-    MongoClient.connect(dburl, (err, db) => {
-        if(err) throw err;
-        var dbo = db.db("iotatestingdb");
-        dbo.collection(q.dbname).findOne(q.payload, (err, result) => {
-            if(err) throw err;
-            db.close();
-            //console.log(result);
-            if(result == null) result = ERRJSONNull;
-            callback(result);
-        });
-    });
-}
+// Creates a pooled connection for db calls.
+MongoClient.connect(uri, (err, db) => {
+    assert.equal(null, err);
+    mongodb = db;
+    mdb = db.db("iota_testing");
+    console.log("connected :D");
+})
 
-multiRequest = (q, callback) => {
-    MongoClient.connect(dburl, (err, db) => {
-        if(err) throw err;
-        var dbo = db.db("iotatestingdb");
-        dbo.collection(q.dbname).find(q.payload).toArray().then(results => {
-            callback(results);
-        });
-    });
-}
 
-multiRequestNoPayload = (q, callback) => {
-    MongoClient.connect(dburl, (err, db) => {
-        if(err) throw err;
-        var dbo = db.db("iotatestingdb");
-        dbo.collection(q.dbname).find().toArray().then(results => {
-            callback(results);
-        });
-    });
-}
-
-exports.finduser = (uid, res) => {
-    var query = {
-        dbname: "users",
-        payload: {
-            id: parseInt(uid)
-        }
+exports.testConn = async () => {
+    try {
+        mongodb.db("iota_testing").command({ping: 1});
+        //await client.db("iota_testing").command({ping: 1});
+        console.log("Connected :D");
+    } finally {
     }
-    singleRequest(query, (msg) => res.json(msg));
 }
 
-exports.findorg = (oid, res) => {
-    var query = {
-        dbname: "organizations",
-        payload: {
-            id: parseInt(oid)
-        }
-    }
-    singleRequest(query, (msg) => res.json(msg));
+// exports.finduser = (uid, res) => {
+//     var query = {
+//         dbname: "users",
+//         payload: {
+//             id: parseInt(uid)
+//         }
+//     }
+//     singleRequest(query, (msg) => res.json(msg));
+// }
+
+const findUser = async (uid) => {
+    const doc = await mongodb.db("iota_testing").collection("users").findOne({"_id": ObjectId(uid)});
+    return doc;
 }
 
-exports.listusers = (req, res) => {
-    var query = {
-        dbname: "users",
-        payload: {
-        }
-    }
-    multiRequestNoPayload(query, (msg) => res.json(msg));
+const listAllUsers = async () => {
+    const doc = await mongodb.db("iota_testing").collection("users").find().toArray();
+    return doc;
 }
 
-exports.listUsersByOrg = (req, res) => {
-    var query = {
-        dbname: "users",
-        payload: {
-            org: parseInt(req)
-        }
-    }
-    multiRequest(query, (msg) => res.json(msg));
+const findOrg = async (uid) => {
+    const doc = await mongodb.db("iota_testing").collection("organizations").findOne({"_id": ObjectId(uid)});
+    return doc;
 }
 
-exports.listorgs = (req, res) => {
-    var query = {
-        dbname: "organizations",
-        payload: {
-        }
-    }
-    multiRequestNoPayload(query, (msg) => res.json(msg));
+const listAllOrgs = async () => {
+    const doc = await mongodb.db("iota_testing").collection("organizations").find().toArray();
+    return doc;
 }
+
+exports.findUser = findUser;
+exports.findOrg = findOrg;
+exports.listAllUsers = listAllUsers;
+exports.listAllOrgs = listAllOrgs;

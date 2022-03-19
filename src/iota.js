@@ -3,13 +3,20 @@
 // Primary application logic.
 
 const { query } = require('express');
+const assert = require('assert');
 const res = require('express/lib/response');
 
-// MongoDB library
-var MongoClient = require('mongodb').MongoClient;
-var dburl = 'mongodb://localhost/iotattestingdb';
+const { MongoClient, ObjectId } = require('mongodb');
+const { Console } = require('console');
 
-var ERRJSONNull = {Error: true, msg: "Null JSON returned from DB"};
+// MongoDB library
+const uri = "mongodb+srv://iotabot:jameshalliday@cluster0.m5mj8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+const client = new MongoClient(uri);
+
+
+const ERRJSONNull = {Error: true, msg: "Null JSON returned from DB"};
+const ERRRequestInvalid = {Error: true, msg:"Inproper Request"};
+const ERRUnkown = {Error: true, msg:"Unknown Error. Server may still be initializing."};
 
 exports.createuser = (msg) => {
     console.log(msg);
@@ -26,85 +33,84 @@ q.payload   -       contains the query to be sent to the database
 // async friendly
 // not structurally necessary, but makes development significantly easier.
 
-// equivalent to "findOne"
-singleRequest = (q, callback) => {
-    MongoClient.connect(dburl, (err, db) => {
-        if(err) throw err;
-        var dbo = db.db("iotatestingdb");
-        dbo.collection(q.dbname).findOne(q.payload, (err, result) => {
-            if(err) throw err;
-            db.close();
-            //console.log(result);
-            if(result == null) result = ERRJSONNull;
-            callback(result);
-        });
-    });
-}
+// Creates a pooled connection for db calls.
+MongoClient.connect(uri, (err, db) => {
+    assert.equal(null, err);
+    mongodb = db;
+    mdb = db.db("iota_testing");
+    console.log("Connected :D");
+})
 
-multiRequest = (q, callback) => {
-    MongoClient.connect(dburl, (err, db) => {
-        if(err) throw err;
-        var dbo = db.db("iotatestingdb");
-        dbo.collection(q.dbname).find(q.payload).toArray().then(results => {
-            callback(results);
-        });
-    });
-}
 
-multiRequestNoPayload = (q, callback) => {
-    MongoClient.connect(dburl, (err, db) => {
-        if(err) throw err;
-        var dbo = db.db("iotatestingdb");
-        dbo.collection(q.dbname).find().toArray().then(results => {
-            callback(results);
-        });
-    });
-}
-
-exports.finduser = (uid, res) => {
-    var query = {
-        dbname: "users",
-        payload: {
-            id: parseInt(uid)
-        }
+exports.testConn = async () => {
+    try {
+        mongodb.db("iota_testing").command({ping: 1});
+        //await client.db("iota_testing").command({ping: 1});
+        console.log("Connected :D");
+    } finally {
     }
-    singleRequest(query, (msg) => res.json(msg));
 }
 
-exports.findorg = (oid, res) => {
-    var query = {
-        dbname: "organizations",
-        payload: {
-            id: parseInt(oid)
-        }
+// exports.finduser = (uid, res) => {
+//     var query = {
+//         dbname: "users",
+//         payload: {
+//             id: parseInt(uid)
+//         }
+//     }
+//     singleRequest(query, (msg) => res.json(msg));
+// }
+
+const findUser = async (uid) => {
+    try {
+        const doc = await mongodb.db("iota_testing").collection("users").findOne({"_id": ObjectId(uid)});
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
     }
-    singleRequest(query, (msg) => res.json(msg));
 }
 
-exports.listusers = (req, res) => {
-    var query = {
-        dbname: "users",
-        payload: {
-        }
+const listAllUsers = async () => {
+    try {
+        const doc = await mongodb.db("iota_testing").collection("users").find().toArray();
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
     }
-    multiRequestNoPayload(query, (msg) => res.json(msg));
 }
 
-exports.listUsersByOrg = (req, res) => {
-    var query = {
-        dbname: "users",
-        payload: {
-            org: parseInt(req)
-        }
+const findOrg = async (uid) => {
+    try {
+        const doc = await mongodb.db("iota_testing").collection("organizations").findOne({"_id": ObjectId(uid)});
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
     }
-    multiRequest(query, (msg) => res.json(msg));
 }
 
-exports.listorgs = (req, res) => {
-    var query = {
-        dbname: "organizations",
-        payload: {
-        }
+const listAllOrgs = async () => {
+    try {
+        const doc = await mongodb.db("iota_testing").collection("organizations").find().toArray();
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
     }
-    multiRequestNoPayload(query, (msg) => res.json(msg));
 }
+
+// const functName = async () => {
+//     try {
+
+//     } catch(e) {
+//         console.error(e);
+//         return ERRUnkown;
+//     }
+// }
+
+exports.findUser = findUser;
+exports.findOrg = findOrg;
+exports.listAllUsers = listAllUsers;
+exports.listAllOrgs = listAllOrgs;

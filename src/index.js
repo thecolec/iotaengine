@@ -6,12 +6,14 @@
 var express = require('express'),
     app = express(),
     port = process.env.PORT || 3000;
+var bodyParser = require('body-parser');
 
 // internal libraries
 var iota = require('./iota.js');
 
 app.use(express.json());
-
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 app.get('/', async (req, res) => {
     try{
         res.send("Hello World");
@@ -62,6 +64,7 @@ app.get('/user/del', (req, res) => {
     res.send("Removed");
 });
 
+
 // Organization API
 // /org/<oid> returns the json for a requested organization identified by its OID.
 app.get('/org/:oid', async (req, res) => {
@@ -76,6 +79,14 @@ app.get('/orgs', async (req, res) => {
     const orgInfo = await iota.listAllOrgs();
     res.json(orgInfo);
 });
+
+// ===== Editing Functions =====
+app.post("/users/assignOrg", async (req, res) => {
+    console.log(req.body.uid);
+    const resp = await iota.addUsrToOrg(req.body.uid,req.body.oid);
+    res.json(resp);
+});
+
 
 app.listen(port);
 console.log('API START');

@@ -8,15 +8,17 @@ const res = require('express/lib/response');
 
 const { MongoClient, ObjectId } = require('mongodb');
 const { Console } = require('console');
+const { ObjectID } = require('bson');
 
 // MongoDB library
 const uri = "mongodb+srv://iotabot:jameshalliday@cluster0.m5mj8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 const client = new MongoClient(uri);
 
 
-const ERRJSONNull = {Error: true, msg: "Null JSON returned from DB"};
+const ERRJSONNull       = {Error: true, msg: "Null JSON returned from DB"};
 const ERRRequestInvalid = {Error: true, msg:"Inproper Request"};
-const ERRUnkown = {Error: true, msg:"Unknown Error. Server may still be initializing."};
+const ERRUnkown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
+const NOERR             = {Error: false, msg:"Operation Succesful."}
 
 exports.createuser = (msg) => {
     console.log(msg);
@@ -101,6 +103,19 @@ const listAllOrgs = async () => {
     }
 }
 
+const addUsrToOrg = async (uid, oid) => {
+    try {
+        const q = {"_id": ObjectId(uid)};
+        const r = { "$push": { "orgs": ObjectId(oid)}};
+        const result = await mongodb.db("iota_testing").collection("users").updateOne(q,r,{});
+        console.log(uid+" : "+oid);
+        console.log(result);
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown
+    }
+}
+
 // const functName = async () => {
 //     try {
 
@@ -114,3 +129,4 @@ exports.findUser = findUser;
 exports.findOrg = findOrg;
 exports.listAllUsers = listAllUsers;
 exports.listAllOrgs = listAllOrgs;
+exports.addUsrToOrg = addUsrToOrg;

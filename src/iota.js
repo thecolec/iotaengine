@@ -108,7 +108,10 @@ const addUsrToOrg = async (uid, oid) => {
         const q = {"_id": ObjectId(uid)};
         const r = { "$push": { "orgs": ObjectId(oid)}};
         const result = await mongodb.db("iota_testing").collection("users").updateOne(q,r,{});
-        console.log(uid+" : "+oid);
+        console.log("uid: "+uid+" Added to oid: "+oid);
+        const q2 = {"_id": ObjectId(oid)};
+        const r2 = {"$push": {"members": ObjectId(uid)}};
+        const result2 = await mongodb.db('iota_testing').collection("organizations").updateOne(q2,r2,{});
         console.log(result);
     } catch(e) {
         console.error(e);

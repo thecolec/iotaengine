@@ -52,12 +52,6 @@ app.get('/users/org/:oid', (req, res) => {
     iota.listUsersByOrg(req.params.oid, res);
 });
 
-// /user/add creates a new user using information from the request
-app.get('/user/add', (req, res) => {
-    iota.createuser("add");
-    res.send("Added")
-});
-
 // /user/del "deletes" a user by making their account inactive.
 app.get('/user/del', (req, res) => {
     iota.removeuser(req);
@@ -81,9 +75,16 @@ app.get('/orgs', async (req, res) => {
 });
 
 // ===== Editing Functions =====
+// link organization to user
 app.post("/users/assignOrg", async (req, res) => {
-    console.log(req.body.uid);
-    const resp = await iota.addUsrToOrg(req.body.uid,req.body.oid);
+    const resp = await iota.addOrgToUsr(req.body.uid,req.body.oid);
+    res.json(resp);
+});
+
+
+// Create a new User
+app.post('/user/add', async (req, res) => {
+    const resp = await iota.createUser(req.body);
     res.json(resp);
 });
 

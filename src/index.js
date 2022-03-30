@@ -3,10 +3,13 @@
 // Express API router.
 
 // external libraries
+var cors = require('cors');
 var express = require('express'),
     app = express(),
     port = process.env.PORT || 3000;
 var bodyParser = require('body-parser');
+
+app.use(cors());
 
 // internal libraries
 var iota = require('./iota.js');

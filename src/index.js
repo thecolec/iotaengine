@@ -13,13 +13,18 @@ app.use(cors());
 
 // internal libraries
 var iota = require('./iota.js');
+const iotaDB = require('./dbConn.js');
+const orgs = require('./organizations');
+const users = require('./users');
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.get('/', async (req, res) => {
     try{
+        await iota.testConn();
         res.send("Hello World");
+        
     } catch(e) {
         console.log(e)
     }
@@ -51,30 +56,16 @@ app.get('/users', async (req, res) => {
     res.json(usrList);
 });
 
-app.get('/users/org/:oid', (req, res) => {
-    iota.listUsersByOrg(req.params.oid, res);
+// Get list of users in specified organization
+app.get('/users/org/:oid', async (req, res) => {
+    const doc = await orgLib.listOrgUsrs(req.params.oid);
+    res.json(doc);
 });
 
 // /user/del "deletes" a user by making their account inactive.
 app.get('/user/del', (req, res) => {
     iota.removeuser(req);
     res.send("Removed");
-});
-
-
-// Organization API
-// /org/<oid> returns the json for a requested organization identified by its OID.
-app.get('/org/:oid', async (req, res) => {
-    console.log("Org Request: "+req.params.uid+" From: "+req.ip);
-    const orgInfo = await iota.findOrg(req.params.uid);
-    res.json(orgInfo);
-})
-
-// /orgs
-app.get('/orgs', async (req, res) => {
-    console.log("Org List Request:                           From: "+req.ip);
-    const orgInfo = await iota.listAllOrgs();
-    res.json(orgInfo);
 });
 
 // ===== Editing Functions =====
@@ -91,7 +82,11 @@ app.post('/user/add', async (req, res) => {
     res.json(resp);
 });
 
+app.use('/org', orgs.router);
+app.use('/usr', users.router);
 
-app.listen(port);
-console.log('API START');
 console.log("Waiting for DB Connection");
+iotaDB.connect(() => {
+    app.listen(port);
+    console.log('API START');
+});

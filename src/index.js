@@ -4,10 +4,12 @@
 
 // external libraries
 var cors = require('cors');
+var bodyParser = require('body-parser');
+
 var express = require('express'),
     app = express(),
-    port = process.env.PORT || 3000;
-var bodyParser = require('body-parser');
+    port = 3000;
+
 
 app.use(cors());
 
@@ -16,6 +18,7 @@ var iota = require('./iota.js');
 const iotaDB = require('./dbConn.js');
 const orgs = require('./organizations');
 const users = require('./users');
+const minutes = require('./minutes');
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -84,6 +87,7 @@ app.post('/user/add', async (req, res) => {
 
 app.use('/org', orgs.router);
 app.use('/usr', users.router);
+app.use('/min', minutes.router);
 
 console.log("Waiting for DB Connection");
 iotaDB.connect(() => {

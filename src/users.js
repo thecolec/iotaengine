@@ -9,11 +9,13 @@ const router = express.Router();
 const { ObjectId } = require('mongodb');
 const dbconn = require('./dbConn');
 
-const ERRUnkown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
+const ERRUnknown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
 
 // ========================================
 //              DB Functions
 // ========================================
+
+// ----- Read -----
 
 const findUser = async (uid) => {
     try {
@@ -21,7 +23,7 @@ const findUser = async (uid) => {
         return doc;
     } catch(e) {
         console.error(e);
-        return ERRUnkown;
+        return ERRUnknown;
     }
 }
 
@@ -31,7 +33,39 @@ const listAllUsers = async () => {
         return doc;
     } catch(e) {
         console.error(e);
-        return ERRUnkown;
+        return ERRUnknown;
+    }
+}
+
+const findUserName = async (name) => {
+    try {
+        const doc = await dbconn.get().collection("users").findOne({"uName": name});
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnknown;
+    }
+}
+
+// ----- Write -----
+
+const addUser = async (user) => {
+    newUsr = {
+        "uName": user.uName.toUpperCase(),
+        "fName": user.fName,
+        "lName": user.lName,
+        "joindate": new Date()
+    }
+    var check = await findUserName(user.uName.toUpperCase());
+    console.log(check);
+    if(check != null) return ERRUnknown;
+    try {
+        var result = await dbconn.get().collection("users").insertOne(newUsr);
+        result.document = newUsr;
+        return result;
+    } catch(e) {
+        console.error(e);
+        return ERRUnknown;
     }
 }
 
@@ -55,6 +89,11 @@ router.get('/s/:uid', async (req, res) => {
 
 router.get('/list', async (req, res) => {
     const doc = await listAllUsers();
+    res.json(doc);
+});
+
+router.post('/add', async (req, res) => {
+    const doc = await addUser(req.body);
     res.json(doc);
 });
 

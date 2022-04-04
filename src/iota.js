@@ -66,8 +66,6 @@ const createUser = async (usr) => {
     }
     if (dbchk != null) return {Error: true, msg:"User Name Already Exists"};
     const result = await dbconn.get().collection("users").insertOne(newUsr);
-
-
 }
 
 // const functName = async () => {

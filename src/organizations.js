@@ -15,6 +15,8 @@ const ERRUnkown         = {Error: true, msg:"Unknown Error. Server may still be 
 //              DB Functions
 // ========================================
 
+// ----- READ -----
+
 const findOrg = async (uid) => {
     try {
         const doc = await dbconn.get().collection("organizations").findOne({"_id": new ObjectId(uid)});
@@ -23,6 +25,16 @@ const findOrg = async (uid) => {
         console.error(e);
         return ERRUnkown;
     }
+}
+
+const findOrgVerbose = async (oid) => {
+    const usrDoc = listOrgUsrs(oid);
+    const orgDoc = findOrg(oid);
+    Promise.all([usrDoc, orgDoc]).then((values) => {
+        var doc = values[1];
+        doc.members = values[0];
+        return doc;
+    });
 }
 
 const listAllOrgs = async () => {
@@ -44,6 +56,10 @@ const listOrgUsrs = async (oid) => {
         return ERRUnkown;
     }
 }
+
+
+
+// ----- WRITE -----
 
 // ========================================
 //             Express Routes
@@ -78,11 +94,8 @@ router.get('/s/:oid/users', async (req, res) => {
 
 
 router.get('/s/:oid/full', async (req, res) => {
-    const usrDoc = listOrgUsrs(req.params.oid);
-    const orgDoc = findOrg(req.params.oid);
-    Promise.all([usrDoc, orgDoc, testDelay]).then((values) => {
-        console.log(values);
-    });
+    const doc = await findOrgVerbose(req.params.oid);
+    res.json(doc);
 })
 
 module.exports = {

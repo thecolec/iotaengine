@@ -1,6 +1,6 @@
 // IOTA.JS
 // Cole Cassidy - 2022
-// Primary application logic.
+// Application config/supporting functions.
 
 const { query } = require('express');
 const assert = require('assert');
@@ -10,14 +10,26 @@ const { MongoClient, ObjectId } = require('mongodb');
 
 const dbconn = require('./dbConn');
 
-const ERRJSONNull       = {Error: true, msg: "Null JSON returned from DB"};
-const ERRRequestInvalid = {Error: true, msg:"Inproper Request"};
-const ERRUnkown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
-const NOERR             = {Error: false, msg:"Operation Succesful."}
+// ERR Obj
+// Predefined error messages to be used elsewhere in the codebase.
+var ERR = {};
+ERR.JSONNull        = {Error: true, msg: "Null JSON returned from DB"};
+ERR.RequestInvalid  = {Error: true, msg:"Inproper Request"};
+ERR.Unknown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
+ERR.UserExists      = {Error: true, msg:"User Already Exists"};
+ERR.UserDNE         = {Error: true, msg:"User Does not exist"};
+ERR.None            = {Error: false, msg:"Operation Succesful."}
+
+// Auth config Obj
+var AUTHCONFIG = {};
+AUTHCONFIG.SaltRounds   = 10;
+AUTHCONFIG.TokenKey     = "thisisatestkey";
 
 // Standard Database access functions
 // Handle all database requests using the above query format.
-// Keep asynchronous
+// Keep asynchronous.
+// TODO: Phase these out into seperate files.
+
 
 
 const testConn = async () => {
@@ -46,7 +58,7 @@ const addOrgToUsr = async (uid, oid) => {
         console.log(result);
     } catch(e) {
         console.error(e);
-        return ERRUnkown
+        return ERR.Unknown
     }
 }
 
@@ -62,7 +74,7 @@ const createUser = async (usr) => {
         dbchk = await dbconn.get().collection("users").findOne({"uName": newUsr.uName});
     } catch(e) {
         console.error(e);
-        return ERRUnkown
+        return ERR.Unknown;
     }
     if (dbchk != null) return {Error: true, msg:"User Name Already Exists"};
     const result = await dbconn.get().collection("users").insertOne(newUsr);
@@ -81,5 +93,7 @@ const createUser = async (usr) => {
 module.exports = {
     testConn,
     addOrgToUsr,
-    createUser
+    createUser,
+    ERR,
+    AUTHCONFIG
 }

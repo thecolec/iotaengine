@@ -73,8 +73,8 @@ const addUser = async (user) => {
 //             Express Routes
 // ========================================
 router.use((req, res, next) => {
-    console.log("REQ: USR "+"IP: "+req.ip);
-    next()
+    console.log("REQ: USR  IP: "+req.ip);
+    next();
 });
 
 router.get('/', async (req, res) => {

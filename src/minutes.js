@@ -8,6 +8,7 @@ const router = express.Router();
 
 const { ObjectId } = require('mongodb');
 const dbconn = require('./dbConn');
+const validator = require('./validator');
 
 const ERRUnkown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
 
@@ -30,12 +31,19 @@ const listAll = async () => {
 
 // ----- Write -----
 
-const newMin = async (oid) => {
+const newMin = async (oid, user) => {
     var doc = {
         createDate: new Date(),
         modDate: new Date(),
         oid: ObjectId(oid),
         state: "open",
+        creator: {
+            uName: user.uName,
+            fName: user.fName,
+            lName: user.lName,
+            uid: user._id,
+
+        },
         sections: []
     }
     dbconn.get().collection("minutes").insertOne(doc);
@@ -60,8 +68,8 @@ router.get('/', async (req, res) => {
 
 // ---- POST ----
 
-router.post('/new', async (req, res) => {
-    const resp = await newMin(req.body.oid);
+router.post('/new', validator, async (req, res) => {
+    const resp = await newMin(req.body.oid, req.user);
     res.json(resp)
 })
 

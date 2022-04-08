@@ -19,6 +19,8 @@ const iotaDB = require('./dbConn.js');
 const orgs = require('./organizations');
 const users = require('./users');
 const minutes = require('./minutes');
+const auth = require('./authentication');
+const validator = require('./validator');
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -88,6 +90,7 @@ app.post('/user/add', async (req, res) => {
 app.use('/org', orgs.router);
 app.use('/usr', users.router);
 app.use('/min', minutes.router);
+app.use('/auth', auth.router);
 
 console.log("Waiting for DB Connection");
 iotaDB.connect(() => {

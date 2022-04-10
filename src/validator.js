@@ -6,14 +6,14 @@
 const express = require('express');
 
 const jwt = require('jsonwebtoken');
+const { ObjectId } = require('mongodb');
 
 const iota = require('./iota');
 
 // ========================================
-//          Load Conf From Iota
+//          Token Validation Functions
 // ========================================
-// Any local variables should get declared based off of what is implemented in the
-// primary iota.js file. This is done to centralize configuration.
+
 
 const checkToken = (req, res, next) => {
     const token = req.body.token || req.headers["x-access-token"];
@@ -27,4 +27,28 @@ const checkToken = (req, res, next) => {
     return next();
 }
 
-module.exports = checkToken;
+const authUser = (req, res, next) => {
+
+    const user = req.user;
+    const dest = req.body;
+
+    // If user has admin auth allow any action
+    if(req.user.rank >= 3) return next();
+
+    // If user is a member of affected group
+    if(req.user.orgs.some(org => org.oid === ObjectId(req.body.oid))){
+        return next();
+    }
+
+    // If user is affecting self
+    if(req.user._id === ObjectId(req.body.uid)){
+        return next();
+    }
+    return res.status(401).json(iota.ERR.Unauthorized);
+
+}
+
+module.exports = {
+    checkToken,
+    authUser
+}

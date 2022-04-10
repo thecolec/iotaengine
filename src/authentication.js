@@ -15,6 +15,8 @@ const bcrypt = require('bcrypt');
 const iota = require('./iota');
 const { hash } = require('bcrypt');
 
+const validator = require('./validator');
+
 // ========================================
 //          Load Conf From Iota
 // ========================================
@@ -126,6 +128,19 @@ const makeToken = async (user) => {
     return token;
 }
 
+const updateToken = async (user) => {
+    try {
+        const newDoc = await dbconn.get().collection("users").findOne({"_id": new ObjectId(user._id)});
+        const token = jwt.sign(
+            newDoc,
+            iota.AUTHCONFIG.TokenKey
+        );
+        return token;
+    } catch(e){
+        console.error("Failed Token Update");
+        return iota.ERR.Unknown;
+    }
+}
 // ------ Express Token Validator -----
 
 const checkToken = (req, res, next) => {
@@ -152,17 +167,23 @@ router.use((req, res, next) => {
 
 // ---- GET ----
 
+router.get('/update', validator.checkToken, async (req, res) => {
+    const doc = await updateToken(req.user);
+    res.json(doc);
+});
+
 // ---- POST ----
 
 router.post('/', async (req, res) => {
     const doc = await authUser(req.body);
-    res.send(doc);
+    res.json(doc);
 });
 
 router.post('/reg', async (req, res) => {
     const doc = await regUser(req.body);
-    res.send(doc);
-})
+    res.json(doc);
+});
+
 
 module.exports = {
     router,

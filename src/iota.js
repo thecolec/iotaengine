@@ -18,7 +18,8 @@ ERR.RequestInvalid  = {Error: true, msg:"Inproper Request"};
 ERR.Unknown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
 ERR.UserExists      = {Error: true, msg:"User Already Exists"};
 ERR.UserDNE         = {Error: true, msg:"User Does not exist"};
-ERR.None            = {Error: false, msg:"Operation Succesful."}
+ERR.None            = {Error: false, msg:"Operation Succesful."};
+ERR.Unauthorized    = {Error: true, msg:"User is not authorized for this resource"};
 
 // Auth config Obj
 var AUTHCONFIG = {};

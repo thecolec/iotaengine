@@ -4,6 +4,7 @@
 
 // Imports
 const express = require('express');
+const { normalizeType } = require('express/lib/utils');
 const router = express.Router();
 
 const { ObjectId } = require('mongodb');
@@ -68,7 +69,7 @@ router.get('/', async (req, res) => {
 
 // ---- POST ----
 
-router.post('/new', validator, async (req, res) => {
+router.post('/new', validator.checkToken, validator.authUser, async (req, res) => {
     const resp = await newMin(req.body.oid, req.user);
     res.json(resp)
 })

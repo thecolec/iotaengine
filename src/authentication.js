@@ -96,7 +96,7 @@ const authUser = async (doc) => {
         user.token = token;
         return user;
     }
-    return iota.ERR.RequestInvalid;
+    return iota.ERR.Unauthorized;
 }
 
 // ----- Support -----
@@ -184,6 +184,10 @@ router.post('/reg', async (req, res) => {
     res.json(doc);
 });
 
+router.post('/login', async (req, res) => {
+     const doc = await authUser(req.body);
+     res.json(doc);
+});
 
 module.exports = {
     router,

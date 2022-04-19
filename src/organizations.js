@@ -8,6 +8,8 @@ const router = express.Router();
 
 const { ObjectId } = require('mongodb');
 const dbconn = require('./dbConn');
+const iota = require('./iota');
+
 
 const ERRUnkown         = {Error: true, msg:"Unknown Error. Server may still be initializing."};
 
@@ -30,9 +32,10 @@ const findOrg = async (uid) => {
 const findOrgVerbose = async (oid) => {
     const usrDoc = listOrgUsrs(oid);
     const orgDoc = findOrg(oid);
-    Promise.all([usrDoc, orgDoc]).then((values) => {
+    return Promise.all([usrDoc, orgDoc]).then((values) => {
         var doc = values[1];
         doc.members = values[0];
+        console.log(doc);
         return doc;
     });
 }
@@ -94,8 +97,7 @@ router.get('/s/:oid/users', async (req, res) => {
 
 
 router.get('/s/:oid/full', async (req, res) => {
-    const doc = await findOrgVerbose(req.params.oid);
-    res.json(doc);
+    res.json( await findOrgVerbose(req.params.oid) );
 })
 
 module.exports = {

@@ -29,6 +29,27 @@ const listAll = async () => {
     }
 }
 
+const minByOrg = async (id) => {
+    try {
+        const doc = await dbconn.get().collection("minutes").find({"oid": new ObjectId(id)}).toArray();
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
+    }
+}
+
+const minByID = async (id) => {
+    try {
+        const doc = await dbconn.get().collection("minutes").findOne({"_id": new ObjectId(id)});
+        console.log(id);
+        return doc;
+    } catch(e) {
+        console.error(e);
+        return ERRUnkown;
+    }
+}
+
 
 // ----- Write -----
 
@@ -67,11 +88,21 @@ router.get('/', async (req, res) => {
     res.json(doc);
 });
 
+router.get('/org/:oid', async (req, res) => {
+    const resp = await minByOrg(req.params.id);
+    res.json(resp);
+});
+
+router.get('/s/:id', async (req, res) => {
+    const resp = await minByID(req.params.id);
+    res.json(resp);
+});
+
 // ---- POST ----
 
 router.post('/new', validator.checkToken, validator.authUser, async (req, res) => {
     const resp = await newMin(req.body.oid, req.user);
-    res.json(resp)
+    res.json(resp);
 })
 
 module.exports = {

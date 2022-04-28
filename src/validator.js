@@ -46,6 +46,10 @@ const authUser = (req, res, next) => {
         return next();
     }
 
+    if( req.user.orgs.some(org => org.oid === new ObjectId(req.body.oid))){
+        return next();
+    }
+
     if(req.user.orgs.some(org => org.oid === req.params.oid)){
         console.log("hello ");
         return next();

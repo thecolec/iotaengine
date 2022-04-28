@@ -123,7 +123,7 @@ const updateRegCode = async (doc) => {
 
     // mongoDB call to write new code
     const filter = {
-        _id: doc._id
+        _id: new ObjectId(doc._id)
     }
     var newCode = await genRegCode();
 

@@ -70,7 +70,8 @@ const newMin = async (newDoc, user) => {
         },
         contents: newDoc.contents
     }
-    dbconn.get().collection("minutes").insertOne(doc);
+    var resp = await dbconn.get().collection("minutes").insertOne(doc);
+    return resp;
 }
 
 

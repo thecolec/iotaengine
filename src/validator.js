@@ -32,11 +32,19 @@ const authUser = (req, res, next) => {
     const user = req.user;
     const dest = req.body;
 
+    // console.log(req.user);
+    // console.log(req.body);
+    // console.log(req.user.orgs.some(org => org.oid === req.body.oid));
+
     // If user has admin auth allow any action
     if(req.user.rank >= 3) return next();
 
     // If user is a member of affected group
     if(req.user.orgs.some(org => org.oid === ObjectId(req.body.oid))){
+        return next();
+    }
+
+    if(req.user.orgs.some(org => org.oid === req.params.oid)){
         return next();
     }
 

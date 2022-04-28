@@ -161,7 +161,7 @@ const checkToken = (req, res, next) => {
 // ========================================
 
 router.use((req, res, next) => {
-    console.log("REQ: AUT  IP: "+req.ip);
+    console.log("REQ: AUT  IP: "+req.ip+" : "+req.url);
     next();
 });
 

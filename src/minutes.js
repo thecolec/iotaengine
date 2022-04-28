@@ -31,6 +31,7 @@ const listAll = async () => {
 
 const minByOrg = async (id) => {
     try {
+        console.log(id);
         const doc = await dbconn.get().collection("minutes").find({"oid": new ObjectId(id)}).toArray();
         return doc;
     } catch(e) {
@@ -53,11 +54,12 @@ const minByID = async (id) => {
 
 // ----- Write -----
 
-const newMin = async (oid, user) => {
+const newMin = async (newDoc, user) => {
     var doc = {
         createDate: new Date(),
         modDate: new Date(),
-        oid: ObjectId(oid),
+        oid: ObjectId(newDoc.oid),
+        title: newDoc.title,
         state: "open",
         creator: {
             uName: user.uName,
@@ -66,7 +68,7 @@ const newMin = async (oid, user) => {
             uid: user._id,
 
         },
-        sections: []
+        contents: newDoc.contents
     }
     dbconn.get().collection("minutes").insertOne(doc);
 }
@@ -77,7 +79,7 @@ const newMin = async (oid, user) => {
 //             Express Routes
 // ========================================
 router.use((req, res, next) => {
-    console.log("REQ: MIN "+"IP: "+req.ip);
+    console.log("REQ: MIN "+"IP: "+req.ip+" : "+req.url);
     next()
 });
 
@@ -89,7 +91,8 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/org/:oid', async (req, res) => {
-    const resp = await minByOrg(req.params.id);
+    console.log("MINUTES BY OID: "+req.params.oid);
+    const resp = await minByOrg(req.params.oid);
     res.json(resp);
 });
 
@@ -101,7 +104,7 @@ router.get('/s/:id', async (req, res) => {
 // ---- POST ----
 
 router.post('/new', validator.checkToken, validator.authUser, async (req, res) => {
-    const resp = await newMin(req.body.oid, req.user);
+    const resp = await newMin(req.body, req.user);
     res.json(resp);
 })
 

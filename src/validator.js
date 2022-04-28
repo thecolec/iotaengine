@@ -18,6 +18,8 @@ const iota = require('./iota');
 const checkToken = (req, res, next) => {
     const token = req.body.token || req.headers["x-access-token"];
     if(token == null) return res.status(403).json(iota.ERR.RequestInvalid);
+
+    // Extract the User Data from the token if possible
     try {
         req.user = jwt.verify(token, iota.AUTHCONFIG.TokenKey);
     } catch(e){
@@ -32,19 +34,20 @@ const authUser = (req, res, next) => {
     const user = req.user;
     const dest = req.body;
 
-    // console.log(req.user);
-    // console.log(req.body);
-    // console.log(req.user.orgs.some(org => org.oid === req.body.oid));
+    console.log(req.user);
+    console.log(req.body);
+    console.log(req.user.orgs.some(org => org.oid === req.body.oid));
 
     // If user has admin auth allow any action
     if(req.user.rank >= 3) return next();
 
     // If user is a member of affected group
-    if(req.user.orgs.some(org => org.oid === ObjectId(req.body.oid))){
+    if( req.user.orgs.some(org => org.oid === req.body.oid)){
         return next();
     }
 
     if(req.user.orgs.some(org => org.oid === req.params.oid)){
+        console.log("hello ");
         return next();
     }
 

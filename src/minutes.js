@@ -55,6 +55,8 @@ const minByID = async (id) => {
 // ----- Write -----
 
 const newMin = async (newDoc, user) => {
+    console.log(newDoc);
+    console.log(user);
     var doc = {
         createDate: new Date(),
         modDate: new Date(),
@@ -106,6 +108,7 @@ router.get('/s/:id', async (req, res) => {
 
 router.post('/new', validator.checkToken, validator.authUser, async (req, res) => {
     const resp = await newMin(req.body, req.user);
+    console.log(resp);
     res.json(resp);
 })
 

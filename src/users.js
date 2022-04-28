@@ -69,6 +69,22 @@ const addUser = async (user) => {
     }
 }
 
+const editUser = async (user) => {
+    const filter = {
+        _id: new ObjectId(user._id)
+    }
+    const update = {
+        $set: {
+            'fName': user.fName,
+            'lName': user.lName,
+            'bio': user.bio
+        }
+    }
+    const res = await dbconn.get().collection("users").updateOne(filter, update);
+    return res;
+
+}
+
 // ========================================
 //             Express Routes
 // ========================================
@@ -96,6 +112,11 @@ router.post('/add', async (req, res) => {
     const doc = await addUser(req.body);
     res.json(doc);
 });
+
+router.post('/edit/:uid', async (req,res) => {
+    const doc = await editUser(req.body);
+    res.json(doc);
+})
 
 module.exports = {
     router

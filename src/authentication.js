@@ -86,13 +86,21 @@ const regUser = async (user) => {
 
 const authUser = async (doc) => {
     const userAuth = await dbconn.get().collection("auth").findOne({"uName": doc.uName.toUpperCase()});
+    console.log(userAuth);
 
     if(userAuth == null) return iota.ERR.UserDNE;
+    // iota.AUTHCONFIG.SaltRounds;
 
-    const user = await dbconn.get().collection("users").findOne({"_id":userAuth.uid});
+    const user = await dbconn.get().collection("users").findOne({"_id": userAuth.uid });
+    // console.log("A");
+    // console.log(user);
+    // console.log(await bcrypt.compare(doc.pWord, userAuth.pWord));
 
+
+    
     if(await bcrypt.compare(doc.pWord, userAuth.pWord)){
         token = await makeToken(user);
+        console.log(token);
         user.token = token;
         return user;
     }
@@ -161,7 +169,7 @@ const checkToken = (req, res, next) => {
 // ========================================
 
 router.use((req, res, next) => {
-    console.log("REQ: AUT  IP: "+req.ip+" : "+req.url);
+    console.log("REQ: AUT  IP: "+req.ip);
     next();
 });
 
@@ -185,6 +193,7 @@ router.post('/reg', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
+     console.log(req.body);
      const doc = await authUser(req.body);
      res.json(doc);
 });
